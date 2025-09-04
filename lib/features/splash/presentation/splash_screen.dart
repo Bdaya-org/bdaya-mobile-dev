@@ -10,120 +10,106 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool moveUp = false;
-  bool moveRight = false;
-  bool moveLeft = false;
-  bool moveDown = false;
-
-  String bdayaText = "";
-  final String fullBdaya = "Bdaya";
+  bool showLogo = false;
   bool showAiTherapist = false;
+  bool showProgress = false;
+  bool showBdaya = false;
 
   @override
   void initState() {
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          moveUp = true;
-          moveRight = true;
-          moveLeft = true;
-          moveDown = true;
-        });
-      }
+      if (mounted) setState(() => showLogo = true);
     });
 
     Future.delayed(const Duration(seconds: 1), () {
-      int index = 0;
-      Timer.periodic(const Duration(milliseconds: 270), (timer) {
-        if (index < fullBdaya.length) {
-          setState(() {
-            bdayaText += fullBdaya[index];
-          });
-          index++;
-        } else {
-          timer.cancel();
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) {
-              setState(() {
-                showAiTherapist = true;
-              });
-            }
-          });
-        }
-      });
+      if (mounted) setState(() => showBdaya = true);
     });
 
-    Future.delayed(const Duration(seconds: 6), () {
-  if (mounted) {
-    context.go('/home');
-  }
-});
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) setState(() => showAiTherapist = true);
+    });
 
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) setState(() => showProgress = true);
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) context.go('/home');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 200),
-                Text(
-                  bdayaText,
-                  style: const TextStyle(
+            const SizedBox(height: 100),
+
+            AnimatedOpacity(
+              duration: const Duration(seconds: 1),
+              opacity: showLogo ? 1 : 0,
+              child: AnimatedScale(
+                duration: const Duration(seconds: 1),
+                scale: showLogo ? 1 : 0.5,
+                curve: Curves.easeOutBack,
+                child: Image.asset("assets/images/bdayaLogo.png", width: 100),
+              ),
+            ),
+
+            AnimatedSlide(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+              offset: showBdaya ? Offset.zero : const Offset(0, 0.5),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: showBdaya ? 1 : 0,
+                child: const Text(
+                  "Bdaya",
+                  style: TextStyle(
+                    fontFamily: "Montserrat",
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: Color(0xff544e86),
                     letterSpacing: 1.5,
                   ),
                 ),
-                AnimatedOpacity(
-                  duration: const Duration(seconds: 1),
-                  opacity: showAiTherapist ? 1 : 0,
-                  child: const Text(
-                    "AI Therapist",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.deepPurple,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
 
-            AnimatedAlign(
-              duration: const Duration(seconds: 1),
-              curve: Curves.easeInOut,
-              alignment: moveUp ? const Alignment(0, -0.08) : Alignment.center,
-              child: Image.asset("assets/images/happy.png", width: 60),
+            AnimatedSlide(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+              offset: showAiTherapist ? Offset.zero : const Offset(0, 0.5),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: showAiTherapist ? 1 : 0,
+                child: const Text(
+                  "AI Therapist",
+                  style: TextStyle(
+                    fontFamily: "Montserrat",
+                    fontSize: 20,
+                    color: Color(0xff544e86),
+                  ),
+                ),
+              ),
             ),
-            AnimatedAlign(
-              duration: const Duration(seconds: 1),
-              curve: Curves.easeInOut,
-              alignment:
-                  moveRight ? const Alignment(0.15, 0) : Alignment.center,
-              child: Image.asset("assets/images/sad.png", width: 60),
-            ),
-            AnimatedAlign(
-              duration: const Duration(seconds: 1),
-              curve: Curves.easeInOut,
-              alignment:
-                  moveLeft ? const Alignment(-0.15, 0) : Alignment.center,
-              child: Image.asset("assets/images/emotion.png", width: 60),
-            ),
-            AnimatedAlign(
-              duration: const Duration(seconds: 1),
-              curve: Curves.easeInOut,
-              alignment: moveDown ? const Alignment(0, 0.08) : Alignment.center,
-              child: Image.asset("assets/images/angry.png", width: 60),
-            ),
+
+            const SizedBox(height: 40),
+
+            if (showProgress) ...[
+              SizedBox(
+                width: 150,
+                child: LinearProgressIndicator(
+                  color: Colors.deepPurple,
+                  backgroundColor: Colors.deepPurple.shade100,
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ],
         ),
       ),
